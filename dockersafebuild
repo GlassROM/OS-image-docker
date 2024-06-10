@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+docker build . --pull=false --no-cache --progress=plain "$@"

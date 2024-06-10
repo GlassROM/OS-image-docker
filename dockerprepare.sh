@@ -6,9 +6,12 @@ rm ./archlinux/etc/pacman.d/gnupg -rvf
 rm ./archinstall/etc/machine-id -rvf
 rm ./archinstall/root/.bash_history -vf
 
+cp ../seccomp-mdwe/seccomp-error ./archinstall -av
+cp ../seccomp-mdwe/seccomp-strict ./archinstall -av
+
 find ./archinstall -perm /4000 -type f -exec chmod u-s {} \;
 find ./archinstall -perm /2000 -type f -exec chmod g-s {} \;
 
-docker build . --no-cache -t $TAG;
+./dockersafebuild -t $TAG;
 
 echo FROM $TAG > TAGINFO
