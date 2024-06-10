@@ -1,2 +1,4 @@
 /archinstall
 /TAGINFO
+/seccomp-error
+/seccomp-strict

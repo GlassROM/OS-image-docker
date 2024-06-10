@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 TAG=$(openssl rand -base64 128 | tr -dc 'a-z')
 echo "tagging as $TAG"
 echo $TAG $(date) | tee -a ./archinstall/container-id
