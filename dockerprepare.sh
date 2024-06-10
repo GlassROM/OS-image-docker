@@ -17,3 +17,4 @@ find ./archinstall -perm /2000 -type f -exec chmod g-s {} \;
 ./dockersafebuild -t $TAG;
 
 echo FROM $TAG > TAGINFO
+reboot
