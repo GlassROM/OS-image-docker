@@ -1,9 +1,7 @@
-FROM scratch
-USER root
-COPY ./archinstall /
+FROM ghcr.io/glassrom/os-image-docker:latest
 
-RUN systemd-machine-id-setup
+RUN pacman-key --init && pacman-key --populate archlinux
 
-# This is intentional. If the chroot is not the most recent, do not bother updating it. Just fail and require a new chroot build
-RUN pacman -Syyuu
-CMD ["/bin/bash"]
+RUN pacman -Syyuu --noconfirm
+
+RUN rm -rvf /etc/pacman.d/gnupg
