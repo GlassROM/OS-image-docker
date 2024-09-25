@@ -24,7 +24,7 @@ echo "After the chroot is created, the system will auto reboot to ensure nothing
 echo "Save all your work!"
 mkdir -p ./archinstall
 # Install all of our dependencies and some debugging packages now to save repeating installation steps
-pacstrap ./archinstall base vi vim nano htop mailcap libxcrypt
+pacstrap -C ./pacman.conf ./archinstall base vi vim nano htop mailcap libxcrypt
 cp /etc/pacman.conf ./archinstall/etc/pacman.conf
 cp /etc/locale.conf ./archinstall/etc/locale.conf
 cp /etc/locale.gen ./archinstall/etc/locale.gen
