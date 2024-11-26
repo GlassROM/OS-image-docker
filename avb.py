@@ -115,7 +115,6 @@ def main():
 
     # Get the PARTUUID from the image
     partuuid = get_partuuid_from_image(image_path)
-    print(f"PARTUUID: {partuuid}")
 
     # Run avbtool info_image
     avbtool_output = run_avbtool_info(image_path)
@@ -135,7 +134,6 @@ def main():
     # Combine parameters
     kernel_cmdline = f"{dm_param} {root_param}"
 
-    print("\nAdd the following parameters to your kernel command line:")
     print(kernel_cmdline)
 
 if __name__ == '__main__':
