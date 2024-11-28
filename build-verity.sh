@@ -1,3 +1,3 @@
-mkfs.erofs -zzstd,level=6 archlinux.img archinstall
+mkfs.erofs -zzstd,level=9 archlinux.img archinstall
 python resize.py
 python avb.py archlinux.img | tee AVBOPTS

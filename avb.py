@@ -34,6 +34,13 @@ def parse_avbtool_output(output):
 def calculate_target_length(image_size):
     return image_size // 512
 
+def calculate_num_data_blocks(image_size, data_block_size):
+    return image_size // data_block_size
+
+def calculate_hash_start_block(num_data_blocks):
+    # Assuming the hash tree starts immediately after the data blocks
+    return num_data_blocks
+
 def calculate_fec_params(hashtree_descriptor):
     fec_num_roots = int(hashtree_descriptor.get('FEC num roots', '0'))
     if fec_num_roots == 0:
@@ -74,31 +81,49 @@ def construct_dm_verity_param(hashtree_descriptor, partuuid):
     image_size_str = hashtree_descriptor['Image Size']
     data_block_size_str = hashtree_descriptor['Data Block Size']
     hash_block_size_str = hashtree_descriptor['Hash Block Size']
+    verity_version_str = hashtree_descriptor['Version of dm-verity']
 
     image_size = int(image_size_str.split()[0].replace(',', ''))
     data_block_size = int(data_block_size_str.split()[0])
     hash_block_size = int(hash_block_size_str.split()[0])
+    verity_version = int(verity_version_str.strip())
 
     hash_algorithm = hashtree_descriptor['Hash Algorithm']
     root_digest = hashtree_descriptor['Root Digest']
     salt = hashtree_descriptor['Salt']
     fec_params = calculate_fec_params(hashtree_descriptor)
     target_length = calculate_target_length(image_size)
-    data_device = f'/dev/disk/by-partuuid/{partuuid}'
+    num_data_blocks = calculate_num_data_blocks(image_size, data_block_size)
+    hash_start_block = calculate_hash_start_block(num_data_blocks)
+    data_device = f'PARTUUID={partuuid}'
     hash_device = data_device  # Assuming data and hash are on the same device
 
     # Build the mapping table
-    mapping_table = f"0 {target_length} verity 1 {data_device} {hash_device} {data_block_size} {hash_block_size} {hash_algorithm} {root_digest} {salt}"
+    mapping_table = f"0 {target_length} verity {verity_version} {data_device} {hash_device} {data_block_size} {hash_block_size} {num_data_blocks} {hash_start_block} {hash_algorithm} {root_digest} {salt}"
+
+    # Initialize optional parameters list
+    optional_params = []
+
+    # Add error behavior options
+    optional_params.extend(['restart_on_corruption', 'ignore_zero_blocks', 'try_verify_in_tasklet'])
 
     if fec_params:
-        # Number of optional parameters is 4
-        optional_params = 4
-        mapping_table += f" {optional_params} {fec_params['fec_roots']} {fec_params['fec_blocks']} {fec_params['fec_start_block']} {data_device}"
-    else:
-        optional_params = 0
+        # Include FEC parameters
+        optional_params.extend([
+            'use_fec_from_device', data_device,
+            'fec_roots', str(fec_params['fec_roots']),
+            'fec_blocks', str(fec_params['fec_blocks']),
+            'fec_start', str(fec_params['fec_start_block'])
+        ])
+
+    # Calculate the number of optional parameters
+    num_optional_params = len(optional_params)
+
+    # Add the number of optional parameters and the optional parameters to the mapping table
+    mapping_table += f" {num_optional_params} " + ' '.join(optional_params)
 
     # Build the dm parameter
-    dm_param = f'dm="0 vroot none ro,0 1 {mapping_table}"'
+    dm_param = f'dm="1 vroot none ro 1,{mapping_table}"'
 
     return dm_param
 
