@@ -61,19 +61,19 @@ def calculate_fec_params(hashtree_descriptor):
     }
 
 def get_partuuid_from_image(image_path):
-    cmd = ['file', image_path]
+    cmd = ['blkid', '/dev/disk/by-id/scsi-360022480e4c7674a98a428fbf7c5612a-part3' ]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"Error running file command: {result.stderr}")
         sys.exit(1)
     output = result.stdout.strip()
     # Extract UUID from output
-    match = re.search(r'uuid=([A-Fa-f0-9-]+)', output)
+    match = re.search(r'PARTUUID="([A-Fa-f0-9-]+)"', output)
     if match:
         uuid = match.group(1)
         return uuid
     else:
-        print("UUID not found in file command output.")
+        print("UUID not found in blkid command output.")
         sys.exit(1)
 
 def construct_dm_verity_param(hashtree_descriptor, partuuid):
