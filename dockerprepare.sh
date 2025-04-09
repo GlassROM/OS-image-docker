@@ -28,6 +28,7 @@ read -s GL_HASH
 cosign sign ghcr.io/glassrom/os-image-docker:@"$GL_HASH"
 cosign sign ghcr.io/glassrom/os-image-docker:@"$GL_HASH"
 cosign sign ghcr.io/glassrom/os-image-docker:@"$GL_HASH"
+cosign sign ghcr.io/glassrom/os-image-docker:@"$GL_HASH"
 
 echo $GL_HASH > HASHINFO
 reboot
